@@ -3,7 +3,6 @@ import requests
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QRadioButton, QButtonGroup, QCheckBox
 from PyQt5.QtGui import QPixmap, QFont
 from PyQt5.QtCore import Qt
-from pprint import pprint
 
 
 class Example(QWidget):
@@ -65,7 +64,7 @@ class Example(QWidget):
         # Точный адрес найденного объекта
         self.exact_address = QLineEdit(self)
         self.exact_address.move(600, 150)
-        self.exact_address.resize(300, 25)
+        self.exact_address.resize(350, 25)
         self.exact_address.setDisabled(True)
 
         self.label = QLabel('Полный адрес:', self)
@@ -73,14 +72,7 @@ class Example(QWidget):
         self.label.setFont(QFont("Times", 12))
 
         self.edit_index = QCheckBox('Почтовый индекс', self)
-        self.edit_index.stateChanged.connect(self.ind)
         self.edit_index.move(600, 185)
-
-        self.place_index = QLineEdit(self)
-        self.place_index.move(600, 205)
-        self.place_index.resize(100, 25)
-        self.place_index.hide()
-        self.place_index.setDisabled(True)
 
         self.geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
         self.api_server = "http://static-maps.yandex.ru/1.x/"
@@ -109,12 +101,6 @@ class Example(QWidget):
         elif self.type.checkedId() == -4:
             self.type_map_now = 'sat,skl'
         self.update_img()
-
-    def ind(self):
-        if self.edit_index.checkState():
-            self.place_index.show()
-        else:
-            self.place_index.hide()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_PageUp and float(self.delta) < 0.5:
@@ -146,10 +132,13 @@ class Example(QWidget):
         json_response = response.json()
         toponym = json_response["response"]["GeoObjectCollection"][
             "featureMember"][0]["GeoObject"]
-        self.place_index.setText(str(toponym['metaDataProperty']['GeocoderMetaData']['Address'][
-                'postal_code']))
-        self.exact_address.setText(toponym['metaDataProperty']['GeocoderMetaData']['AddressDetails'][
-                   'Country']['AddressLine'])
+
+        exact_address = toponym['metaDataProperty']['GeocoderMetaData']['AddressDetails'][
+            'Country']['AddressLine']
+        if self.edit_index.checkState():
+            exact_address += ', ' + str(toponym['metaDataProperty']['GeocoderMetaData']['Address'][
+                'postal_code'])
+        self.exact_address.setText(exact_address)
         toponym_coodrinates = toponym["Point"]["pos"]
         toponym_longitude, toponym_lattitude = toponym_coodrinates.split(" ")
         self.lat_metka, self.lat = toponym_lattitude, toponym_lattitude
