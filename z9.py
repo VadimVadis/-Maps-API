@@ -9,7 +9,7 @@ class Example(QWidget):
     def __init__(self):
         super().__init__()
         self.setGeometry(250, 250, 1000, 700)
-        self.setWindowTitle('8')
+        self.setWindowTitle('9')
         self.label_img = QLabel(self)
         self.label_img.move(50, 20)
         self.label_img.resize(450, 450)
